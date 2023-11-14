@@ -5,16 +5,19 @@ import requests
 from io import BytesIO
 import os
 from dotenv import load_dotenv
-from imageProcessing import processImage
+import replicate
+import tempfile
+from urllib.request import urlretrieve
+
 
 load_dotenv()
-api_key = os.getenv("API_KEY")
+api_key = os.getenv("REPLICATE_API_TOKEN")
 
-class ClipDropApp(tk.Tk):
+class T2iLineartApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("ClipDrop Sketch-to-Image")
+        self.title("Sketch-to-Image Machine")
         self.geometry("1100x1100")
 
         self.canvas = tk.Canvas(self)  # Create a canvas to display the sketch
@@ -27,7 +30,7 @@ class ClipDropApp(tk.Tk):
         self.prompt_entry.pack() # Pack the entry into the window
         self.prompt_entry.insert(0, "Enter prompt here") # Set the default text of the entry
 
-        self.send_btn = tk.Button(self, text="Send to ClipDrop", command=self.send_to_clipdrop, state=tk.DISABLED)  # Disable the button initially
+        self.send_btn = tk.Button(self, text="Generate Image", command=self.send_to_replicate, state=tk.DISABLED)  # Disable the button initially
         self.send_btn.pack()  # Pack the button into the window
 
         self.bind('<Configure>', self.update_canvas)  # Bind the function to the window resize event
@@ -36,33 +39,49 @@ class ClipDropApp(tk.Tk):
         self.file_path = filedialog.askopenfilename()  # Open a file dialog to select a file
         if self.file_path:  # Check if a file was selected
             print("file path: ", self.file_path)  # Print the file path
-            self.processed_image_path = processImage(self.file_path)
-            self.current_image = Image.open(self.processed_image_path)  # Open the image
+            self.current_image = Image.open(self.file_path)  # Open the image
             self.update_canvas(None)  # Update the canvas
-            self.send_btn.config(state=tk.NORMAL)  # Enable the Send to ClipDrop button
+            self.send_btn.config(state=tk.NORMAL)  # Enable the Generate button
 
-    def send_to_clipdrop(self):  # Called when the send button is clicked
+    def send_to_replicate(self):
         prompt = self.prompt_entry.get()  # Get the text from the entry
-        if self.processed_image_path and prompt:  # Check if a file and prompt were entered
-            with open(self.processed_image_path, 'rb') as sketch_file_object:  # Open the file
-                r = requests.post( # Send the file to ClipDrop
-                    'https://clipdrop-api.co/sketch-to-image/v1/sketch-to-image', # URL
-                    files={'sketch_file': (self.processed_image_path, sketch_file_object, 'image/jpeg')},# File
-                    data={'prompt': prompt}, # Prompt
-                    headers={'x-api-key': api_key} # API key
-                )
-                if r.ok: # Check if the request was successful
-                    self.display_image(r.content) # Display the image
-                else:
-                    r.raise_for_status() # Raise an exception if the request failed
+        if self.file_path and prompt:  # Check if a file and prompt were entered
+            # Get the specific deployment
+            deployment = replicate.deployments.get("magniswerfer/sketch-to-image-machine")
+
+            # Send the image to Replicate and create a prediction
+            with open(self.file_path, 'rb') as sketch_file_object:
+                prediction = deployment.predictions.create(input={"image": sketch_file_object, "prompt": prompt})
+            
+            # Wait for the prediction to complete
+            prediction.wait()
+
+            # Download and display the image
+            # Assuming the output is a list and the desired image is the second one
+            if isinstance(prediction.output, list) and len(prediction.output) > 1:
+                image_url = prediction.output[1]  # Get the URL of the second image
+            else:
+                print("Unexpected output format or insufficient outputs received.")
+                return
+
+            # Download and display the image
+            with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+                urlretrieve(image_url, tmp_file.name)
+                self.display_image(tmp_file.name)
 
     def display_image(self, image_data):  # Display an image in the canvas
         self.current_image = Image.open(BytesIO(image_data))  # Open the image
         self.update_canvas(None)  # Update the canvas
 
-    def display_image(self, image_data):  # Display an image in the canvas
-        self.current_image = Image.open(BytesIO(image_data))  # Open the image
-        self.update_canvas(None)  # Update the canvas
+    def display_image(self, image_data):
+        if isinstance(image_data, str):
+            # If image_data is a file path
+            self.current_image = Image.open(image_data)
+        else:
+            # If image_data is bytes
+            self.current_image = Image.open(BytesIO(image_data))
+
+        self.update_canvas(None)
     
     def update_canvas(self, event):  # Update the canvas
         if hasattr(self, 'current_image'):
@@ -84,5 +103,5 @@ class ClipDropApp(tk.Tk):
             self.photo = photo  # Keep a reference to avoid garbage collection
 
 if __name__ == "__main__": # Check if the file was run directly
-    app = ClipDropApp() # Create the app
+    app = T2iLineartApp() # Create the app
     app.mainloop() # Run the app
