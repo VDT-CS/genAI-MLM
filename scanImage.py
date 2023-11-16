@@ -1,32 +1,14 @@
-import pyinsane2
-import PIL.Image
+import subprocess
 
-def scan_image():
-    pyinsane2.init()
-
+def hp_scan():
     try:
-        devices = pyinsane2.get_devices()
-        if not devices:
-            raise Exception("No scanner detected")
+        # The number corresponding to the scanner in the hp-scan prompt
+        scanner_number = "1"
 
-        device = devices[0]
-        print("Using scanner:", device.name)
+        # Start hp-scan and send the scanner number to it
+        process = subprocess.run(["hp-scan"], input=scanner_number, text=True, check=True)
+        print("Scan completed successfully")
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while scanning: {e}")
 
-        pyinsane2.set_scanner_opt(device, 'resolution', [300])
-
-        scan_session = device.scan(multiple=False)
-        try:
-            while True:
-                scan_session.scan.read()
-        except EOFError:
-            pass
-
-        image = scan_session.images[0]
-        file_path = "scanned_image.jpg"
-        image.save(file_path)
-        print(f"Scanned image saved to {file_path}")
-
-    finally:
-        pyinsane2.exit()
-
-scan_image()
+hp_scan()
