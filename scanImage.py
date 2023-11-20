@@ -6,7 +6,7 @@ def hp_scan():
         scanner_number = "1"
 
         # Start hp-scan and send the scanner number to it
-        process = subprocess.run(["hp-scan"], input=scanner_number, text=True, check=True)
+        process = subprocess.run(["hp-scan", "--output=" + "scannedImage.jpg", "-m" + "color"], input=scanner_number, text=True, check=True)
         print("Scan completed successfully")
     except subprocess.CalledProcessError as e:
         print(f"An error occurred while scanning: {e}")
