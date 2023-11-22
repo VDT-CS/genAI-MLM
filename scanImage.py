@@ -1,5 +1,7 @@
 import subprocess
 
+printerName = "HP_ENVY_4520_series"
+
 def hp_scan():
     try:
         # The number corresponding to the scanner in the hp-scan prompt
