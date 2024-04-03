@@ -1,3 +1,5 @@
+# Currently, this file holds all the functions for interacting with the printer, the scanner, and the Replicate API. Should be broken up further.
+
 import os
 from dotenv import load_dotenv
 import replicate

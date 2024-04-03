@@ -1,88 +1,68 @@
 import tkinter as tk
-from tkinter import filedialog, simpledialog
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
-import requests
-from io import BytesIO
+import threading
 import os
-from dotenv import load_dotenv
-from imageProcessing import processImage
+import printer_scanner_functions as psf
+# Make sure to have the above provided functions in the same file or imported here
 
-load_dotenv()
-api_key = os.getenv("API_KEY")
 
-class ClipDropApp(tk.Tk):
-    def __init__(self):
-        super().__init__()
+class ImageGeneratorGUI:
 
-        self.title("ClipDrop Sketch-to-Image")
-        self.geometry("1100x1100")
+    has_scanned = False
 
-        self.canvas = tk.Canvas(self)  # Create a canvas to display the sketch
-        self.canvas.pack(fill=tk.BOTH, expand=True)  # Fill the entire window
+    def __init__(self, root):
+        self.root = root
+        root.title("Image Generator")
+        root.attributes('-fullscreen', True) # Start in fullscreen mode
+        
+        # Bind the toggle_fullscreen and end_fullscreen methods to F11 and Esc keys, respectively
+        root.bind('<F11>', self.toggle_fullscreen)
+        root.bind('<Escape>', self.end_fullscreen)
 
-        self.upload_btn = tk.Button(self, text="Upload Sketch", command=self.upload_file) # Create a button to upload a sketch
-        self.upload_btn.pack() # Pack the button into the window
+        # Setup of the GUI
+        self.scan_button = tk.Button(root, text="Scan Image", command=self.scan_and_display)
+        self.scan_button.pack()
 
-        self.prompt_entry = tk.Entry(self, width=50) # Create an entry to enter a prompt
-        self.prompt_entry.pack() # Pack the entry into the window
-        self.prompt_entry.insert(0, "Enter prompt here") # Set the default text of the entry
+        self.prompt_entry = tk.Entry(root)
+        self.prompt_entry.pack()
 
-        self.send_btn = tk.Button(self, text="Send to ClipDrop", command=self.send_to_clipdrop, state=tk.DISABLED)  # Disable the button initially
-        self.send_btn.pack()  # Pack the button into the window
+        self.send_button = tk.Button(root, text="Generate Image", command=self.send_to_replicate_thread)
+        self.send_button.pack()
 
-        self.bind('<Configure>', self.update_canvas)  # Bind the function to the window resize event
+        self.image_label = tk.Label(root)
+        self.image_label.pack()
 
-    def upload_file(self):  # Called when the upload button is clicked
-        self.file_path = filedialog.askopenfilename()  # Open a file dialog to select a file
-        if self.file_path:  # Check if a file was selected
-            print("file path: ", self.file_path)  # Print the file path
-            self.processed_image_path = processImage(self.file_path)
-            self.current_image = Image.open(self.processed_image_path)  # Open the image
-            self.update_canvas(None)  # Update the canvas
-            self.send_btn.config(state=tk.NORMAL)  # Enable the Send to ClipDrop button
+    def toggle_fullscreen(self, event=None):
+        self.root.attributes('-fullscreen', not self.root.attributes('-fullscreen'))
+        return "break"
 
-    def send_to_clipdrop(self):  # Called when the send button is clicked
-        prompt = self.prompt_entry.get()  # Get the text from the entry
-        if self.processed_image_path and prompt:  # Check if a file and prompt were entered
-            with open(self.processed_image_path, 'rb') as sketch_file_object:  # Open the file
-                r = requests.post( # Send the file to ClipDrop
-                    'https://clipdrop-api.co/sketch-to-image/v1/sketch-to-image', # URL
-                    files={'sketch_file': (self.processed_image_path, sketch_file_object, 'image/jpeg')},# File
-                    data={'prompt': prompt}, # Prompt
-                    headers={'x-api-key': api_key} # API key
-                )
-                if r.ok: # Check if the request was successful
-                    self.display_image(r.content) # Display the image
-                else:
-                    r.raise_for_status() # Raise an exception if the request failed
+    def end_fullscreen(self, event=None):
+        self.root.attributes('-fullscreen', False)
+        return "break"
 
-    def display_image(self, image_data):  # Display an image in the canvas
-        self.current_image = Image.open(BytesIO(image_data))  # Open the image
-        self.update_canvas(None)  # Update the canvas
+    def scan_and_display(self):
+        output_path = "scanned_image.jpg"
+        #start a loading animation here
+        psf.scan_image(output_path)
+        #and end it here
+        ImageGeneratorGUI.has_scanned = True	# Set the global variable to True
+        self.display_image(output_path)
 
-    def display_image(self, image_data):  # Display an image in the canvas
-        self.current_image = Image.open(BytesIO(image_data))  # Open the image
-        self.update_canvas(None)  # Update the canvas
-    
-    def update_canvas(self, event):  # Update the canvas
-        if hasattr(self, 'current_image'):
-            # Get the dimensions of the canvas and the image
-            canvas_width, canvas_height = self.canvas.winfo_width(), self.canvas.winfo_height()
-            image_width, image_height = self.current_image.size
+    def display_image(self, image_path):
+        img = Image.open(image_path)
+        img = img.resize((250, 354))  # Resize for display purposes
+        img = img.rotate(90, expand=True)
+        img_tk = ImageTk.PhotoImage(img)
+        self.image_label.configure(image=img_tk)
+        self.image_label.image = img_tk
 
-            # Calculate the scaling factor while maintaining the aspect ratio
-            scale = min((canvas_width - 20) / image_width, (canvas_height - 20) / image_height)
-            new_width, new_height = int(image_width * scale), int(image_height * scale)
-
-            # Resize the image and create a PhotoImage object
-            resized_image = self.current_image.resize((new_width, new_height), Image.LANCZOS)  # Corrected line
-            photo = ImageTk.PhotoImage(resized_image)
-
-            # Clear the canvas and display the image
-            self.canvas.delete("all")
-            self.canvas.create_image(canvas_width // 2, canvas_height // 2, image=photo)
-            self.photo = photo  # Keep a reference to avoid garbage collection
-
-if __name__ == "__main__": # Check if the file was run directly
-    app = ClipDropApp() # Create the app
-    app.mainloop() # Run the app
+    def send_to_replicate_thread(self):
+        if not ImageGeneratorGUI.has_scanned:
+            messagebox.showerror("Error", "Please scan an image first.")
+            return
+        else:
+            prompt = self.prompt_entry.get()
+            file_path = "scanned_image.jpg"
+            threading.Thread(target=psf.send_to_replicate, args=(file_path, prompt)).start()
+            # Implement a loading animation here
