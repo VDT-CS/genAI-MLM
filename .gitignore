@@ -1,2 +1,4 @@
 # Ignore environment files
 *.env
+generatedImage.jpg
+scanned_image.jpg
