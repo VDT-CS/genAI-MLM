@@ -21,7 +21,10 @@ def initialize_serial_listener():
     global arduinoInput
     arduinoInput = SerialListener({
         "SCAN": lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
-        "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer)
+        "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
+        "POT1": lambda: print("Potentiometer 1 value received."), #Instead of this, we should call a function that appends a string to the prompt entry
+        "POT2": lambda: print("Potentiometer 2 value received."),
+        "POT3": lambda: print("Potentiometer 3 value received.")
     })
 
 def on_closing():
