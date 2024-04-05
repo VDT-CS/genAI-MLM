@@ -29,13 +29,13 @@ void loop() {
     if (buttonsPressed(buttonPin1, button1State)) {
         // turn LED on:
         digitalWrite(ledPin, HIGH);
-        Serial.println("LED_ON");
+        Serial.println("SCAN");
         button1State = true;
     }
     if (buttonsPressed(buttonPin2, button2State)) {
         // turn LED off:
         digitalWrite(ledPin, LOW);
-        Serial.println("LED_OFF");
+        Serial.println("GENERATE");
         button2State = true;
     }
 }
