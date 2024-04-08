@@ -5,36 +5,14 @@ from handleInput import InputHandler
 from arduinoInput import SerialListener
 import tkinter as tk
 
-arduinoInput = None
 
-####  These should be moved to keyboardInput.py ####
-def toggle_fullscreen(root):
-    root.attributes('-fullscreen', not root.attributes('-fullscreen'))
-    return "break"
-
-def end_fullscreen(root):
-    root.attributes('-fullscreen', False)
-    return "break"
-####################################################
-
-def initialize_serial_listener():
-    global arduinoInput
-    arduinoInput = SerialListener({
-        "SCAN": lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
-        "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
-        "POT1": lambda: print("Potentiometer 1 value received."), #Instead of this, we should call a function that appends a string to the prompt entry
-        "POT2": lambda: print("Potentiometer 2 value received."),
-        "POT3": lambda: print("Potentiometer 3 value received.")
-    })
-
-def on_closing():
-    print("Application closing...")
-    if arduinoInput is not None:
-        arduinoInput.shutdown()
-    else :
-        print("arduinoInput is None")
+def initialize_serial_listener(callbacks, root):
+    arduinoInput = SerialListener(callbacks)
+    root.protocol("WM_DELETE_WINDOW", lambda: set_shutdown_procedure(arduinoInput, root))
+    
+def set_shutdown_procedure(arduino, root):
     root.destroy()
-
+    arduino.shutdown()
 
 if __name__ == "__main__":
     api_key = "REPLICATE_API_KEY"
@@ -45,17 +23,23 @@ if __name__ == "__main__":
 
     root = tk.Tk()  # Create the root window
     gui = ImageGeneratorGUI(root,
-                            lambda event: toggle_fullscreen(root), 
-                            lambda event: end_fullscreen(root),
                             lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
                             lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
                             "GuiMode"
                             )
-
-    # Schedule SerialListener initialization
-    root.after(100, initialize_serial_listener)
     
-    # Setup graceful shutdown
-    root.protocol("WM_DELETE_WINDOW", on_closing)
+    arduino_callbacks = {
+        "SCAN": lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
+        "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
+        "STYLE": {
+            "PHOTO": lambda: onInput.append_to_prompt("Photo realistic, Canon 5D Mark IV"),
+            "DIGITAL_ART": lambda: onInput.append_to_prompt("Digital Art, 3D modeling"),
+            "ANIME": lambda: onInput.append_to_prompt("Anime, Manga")
+        }
+    }
 
+    root.after(100, lambda: initialize_serial_listener(arduino_callbacks, root))
+    
     root.mainloop()
+    print("Mainloop has exited")
+

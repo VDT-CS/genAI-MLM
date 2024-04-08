@@ -40,13 +40,10 @@ class ScannerPrinter:
         # Get the first scanner
         dev = None
         for info in wia.DeviceInfos:
-            for prop in info.Properties:
-                if prop.Name == "Name":
-                    if "scanner" in prop.Value.lower():
-                        dev = info.Connect()
-                        break
-            if dev is not None:
-                break
+            # Check if the device type is a scanner (Type 1)
+            if info.Type == 1:  # 1 indicates a scanner
+                dev = info.Connect()
+                break  # Break after connecting to the first scanner
 
         if dev is None:
             print("No scanner found")
@@ -61,3 +58,6 @@ class ScannerPrinter:
         
         # Save the image
         img.SaveFile(output_path)
+        
+    if __name__ == "__main__":
+        scan_image("test_image.jpg")

@@ -2,21 +2,25 @@ const int buttonPin1 = 2; // the number of the pushbutton pin
 const int buttonPin2 = 3; // the number of the pushbutton pin
 
 const int potPin = A0;                    // Potentiometer connected to A0
-int lastPotValue = 0;                     // Stores the last potentiometer value
-int potValue = 0;                         // Current potentiometer value
-unsigned long lastChangeTime = 0;         // Last time the potentiometer value changed
-const unsigned long stabilityDelay = 500; // Wait for 50ms to ensure value is stable
+
+const int potentiometers[] = {A0}; // Important! Add all potetionemeters here
+const int numRanges[] = {3, 3}; // Number of ranges you want to divide the potentiometer readings into
+
+const int numPots = sizeof(potentiometers) / sizeof(potentiometers[0]);
+int lastPotValue[numPots];        // Stores the last potentiometer values
+int lastRange[numPots];           // Stores the last range states for each potentiometer
+unsigned long lastChangeTime[numPots]; // Last time the potentiometer value changed for each
+
+const unsigned long stabilityDelay = 500; // Wait for 500ms to ensure value is stable
+const int threshold = 5; // Threshold for detecting change in potentiometer value
 
 const int ledPin = 13;   // the number of the LED pin
-const int threshold = 5; // Threshold for detecting change in potentiometer value
-int lastRange = -1;      // Variable to store the last range state (-1 indicates uninitialized)
 
 // variables will change:
 bool button1State = false; // variable for reading the pushbutton status
 bool button2State = false; // variable for reading the pushbutton status
 
-void setup()
-{
+void setup(){
     Serial.begin(115200);
     // initialize the LED pin as an output:
     pinMode(ledPin, OUTPUT);
@@ -24,12 +28,14 @@ void setup()
     pinMode(buttonPin1, INPUT);
     pinMode(buttonPin2, INPUT);
 
-    lastPotValue = analogRead(potPin);      // Initialize lastPotValue with the initial reading
-    checkAndPrintRange(lastPotValue, true); // Check and print the initial range
+    for (int i = 0; i < numPots; i++) {
+        lastPotValue[i] = analogRead(potentiometers[i]);
+        lastRange[i] = -1; // Initialize lastRange with -1 to indicate uninitialized
+        lastChangeTime[i] = 0;
+    }
 }
 
-bool buttonsPressed(int button, bool &state)
-{
+bool buttonsPressed(int button, bool &state){
     if (digitalRead(button) == HIGH && state == false)
     {
         return true;
@@ -41,75 +47,63 @@ bool buttonsPressed(int button, bool &state)
     return false;
 }
 
-void loop()
-{
-    handlePotentiometer();
+void loop(){
+    for (int i = 0; i < numPots; i++) {
+        handlePotentiometer(potentiometers[i], i);
+    }
 
     if (buttonsPressed(buttonPin1, button1State))
     {
         // turn LED on:
         digitalWrite(ledPin, HIGH);
-        Serial.println("SCAN");
+        Serial.println("{'INPUT': 'SCAN'}");
         button1State = true;
     }
     if (buttonsPressed(buttonPin2, button2State))
     {
         // turn LED off:
         digitalWrite(ledPin, LOW);
-        Serial.println("GENERATE");
+        Serial.println("{'INPUT': 'GENERATE'}");
         button2State = true;
     }
 }
-void handlePotentiometer()
-{
-    int potValue = analogRead(potPin); // Read the current potentiometer value
 
-    // Check if the potentiometer value has changed significantly
-    if (abs(potValue - lastPotValue) > threshold)
-    {
-        lastChangeTime = millis(); // Update the last change time
-        lastPotValue = potValue;   // Update the last potentiometer value to the current reading
+void handlePotentiometer(int pot, int index) {
+    int potValue = analogRead(pot); // Read the current potentiometer value
+
+    if (abs(potValue - lastPotValue[index]) > threshold) {
+        lastChangeTime[index] = millis();
+        lastPotValue[index] = potValue;
     }
 
-    // If the current time is greater than lastChangeTime + stabilityDelay, it means the value is stable
-    if (millis() - lastChangeTime > stabilityDelay && lastChangeTime != 0)
-    {
-        checkAndPrintRange(potValue, false); // Check the current range and print if it has changed
-        lastChangeTime = 0;                  // Reset lastChangeTime to avoid multiple prints
+    if (millis() - lastChangeTime[index] > stabilityDelay && lastChangeTime[index] != 0) {
+        checkAndPrintRange(potValue, index, false);
+        lastChangeTime[index] = 0;
     }
 }
 
-void checkAndPrintRange(int potValue, bool forcePrint)
-{
-    int currentRange;
-    if (potValue < 341)
-    {
-        currentRange = 0;
-    }
-    else if (potValue >= 341 && potValue < 682)
-    {
-        currentRange = 1;
-    }
-    else
-    {
-        currentRange = 2;
-    }
+void checkAndPrintRange(int potValue, int index, bool forcePrint) {
+    float rangeWidth = 1024.0 / numRanges[index]; // Use 1024 to include the upper boundary and float for division
+    int currentRange = static_cast<int>(floor(potValue / rangeWidth));
 
-    // If the range has changed or if we are forcing a print (for setup), print the message
-    if (currentRange != lastRange || forcePrint)
-    {
-        switch (currentRange)
-        {
-        case 0:
-            Serial.println("POT1");
-            break;
-        case 1:
-            Serial.println("POT2");
-            break;
-        case 2:
-            Serial.println("POT3");
-            break;
+    if (currentRange != lastRange[index] || forcePrint) {
+        Serial.print("{'INPUT': ");
+        // Example customization based on potentiometer and range
+        if (index == 0) { // For first potentiometer
+        Serial.print("'STYLE', 'VALUE': ");
+            switch (currentRange) {
+                case 0: Serial.print("PHOTO"); break;
+                case 1: Serial.print("DIGITAL_ART"); break;
+                case 2: Serial.print("ANIME"); break;
+            }
+        } else if (index == 1) { // For second potentiometer
+            switch (currentRange) {
+                case 0: Serial.println("{'INPUT': 'POT2', 'VALUE': 'LOW'}"); break;
+                case 1: Serial.println("{'INPUT': 'POT2', 'VALUE': 'MEDIUM'}"); break;
+                case 2: Serial.println("{'INPUT': 'POT2', 'VALUE': 'HIGH'}"); break;
+            }
         }
-        lastRange = currentRange; // Update the last range to the current one
+        Serial.println("'}");
+        lastRange[index] = currentRange;
     }
 }

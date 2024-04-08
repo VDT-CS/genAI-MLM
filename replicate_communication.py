@@ -10,6 +10,7 @@ class Replicate:
         # Load API token
         load_dotenv()
         self.api_key = api_key
+        self.appended_prompt = ""
     
     #Generate image from sketch
     def generate(self, file_path, userPrompt):
@@ -18,7 +19,7 @@ class Replicate:
         
         with open(file_path, 'rb') as sketch_file_object:
             prediction = deployment.predictions.create(input={"image": sketch_file_object, 
-                                                              "prompt": userPrompt + "4k photo. photo realistic. Canon 5D MkIV"
+                                                              "prompt": userPrompt + self.appended_prompt
                                                               })
         prediction.wait()
         if isinstance(prediction.output, list) and len(prediction.output) > 1:
@@ -36,6 +37,9 @@ class Replicate:
                 out_file.write(response.read())
             print("Image downloaded and saved as 'generated_image.jpg'")
         return file_path #returns the path of the downloaded image
+    
+    def append_to_prompt(self, prompt):
+        self.appended_prompt += prompt
     
 # For debugging purposes
 if __name__ == "__main__":

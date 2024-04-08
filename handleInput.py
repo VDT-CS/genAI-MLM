@@ -4,6 +4,7 @@ import pythoncom
 class InputHandler:
     def __init__(self):
         pass
+        self.current_str_append = ""
     
     def perform_scan(self, outputPath, scannerPrinter, gui):
         gui.start_loading_animation()  # Start loading animation
@@ -28,6 +29,7 @@ class InputHandler:
             return
         else:
             prompt = gui.prompt_entry.get()
+            prompt = prompt + self.current_str_append
             gui.start_loading_animation()  # Start loading animation
             threading.Thread(target=self.send_to_replicate_thread, args=(inputPath, prompt, replicate, gui, scannerPrinter)).start()
         
@@ -37,8 +39,11 @@ class InputHandler:
             print("Sending image to replicate...")
             image_path = replicate.download_image(replicate.generate(file_path, prompt), "generated_image.jpg")
             # If 'print_image' updates the GUI or triggers feedback, ensure it's done in a thread-safe manner
-            scannerPrinter.print_image(image_path, "HP ENVY 4520 series")
+            scannerPrinter.print_image(image_path, "HP ENVY 5530 series")
             # Schedule GUI update to stop loading animation
             gui.root.after(0, gui.stop_loading_animation)
         finally:
             pythoncom.CoUninitialize()
+            
+    def append_to_prompt(self, str_append):
+        self.current_str_append = ", " + str_append

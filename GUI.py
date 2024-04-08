@@ -11,8 +11,6 @@ class ImageGeneratorGUI:
     has_scanned = False
 
     def __init__(self, root, 
-                 toggle_fullscreen_callback, 
-                 end_fullscreen_callback,
                  scan_callback,
                  send_to_replicate_callback,
                  guiMode = None,):
@@ -22,8 +20,8 @@ class ImageGeneratorGUI:
         root.attributes('-fullscreen', True)  # Start in fullscreen mode
         
         # Bind the toggle_fullscreen and end_fullscreen methods to F11 and Esc keys, respectively
-        root.bind('<F11>', toggle_fullscreen_callback)
-        root.bind('<Escape>', end_fullscreen_callback)
+        root.bind('<F11>', self.toggle_fullscreen)
+        root.bind('<Escape>', self.end_fullscreen)
 
         # Image display label at the top
         self.image_label = tk.Label(root)
@@ -50,6 +48,14 @@ class ImageGeneratorGUI:
         self.loading_label = tk.Label(self.image_label)  # Assuming image_label is where you want the animation
         self.loading_index = 0
         self.loading = False
+        
+    def toggle_fullscreen(self, event=None):
+        self.root.attributes('-fullscreen', not self.root.attributes('-fullscreen'))
+        return "break"
+
+    def end_fullscreen(self, event=None):
+        self.root.attributes('-fullscreen', False)
+        return "break"
     
     def update_scanned_image(self, image_path):
         self.display_image(image_path)
