@@ -1,17 +1,20 @@
 const int buttonPin1 = 2; // the number of the pushbutton pin
 const int buttonPin2 = 3; // the number of the pushbutton pin
 
-const int potPin = A0;                    // Potentiometer connected to A0
+// Potentiometer pins
+const int style = A0;                
+const int background = A1;  
+const int time = A2;  
 
-const int potentiometers[] = {A0}; // Important! Add all potetionemeters here
-const int numRanges[] = {3, 3}; // Number of ranges you want to divide the potentiometer readings into
+const int potentiometers[] = {style, background, time}; // Important! Add all potetionemeters here
+const int numRanges[] = {3, 3, 3}; // Number of ranges you want to divide the potentiometer readings into
 
 const int numPots = sizeof(potentiometers) / sizeof(potentiometers[0]);
 int lastPotValue[numPots];        // Stores the last potentiometer values
 int lastRange[numPots];           // Stores the last range states for each potentiometer
 unsigned long lastChangeTime[numPots]; // Last time the potentiometer value changed for each
 
-const unsigned long stabilityDelay = 500; // Wait for 500ms to ensure value is stable
+const unsigned long stabilityDelay = 50; // Wait for 500ms to ensure value is stable
 const int threshold = 5; // Threshold for detecting change in potentiometer value
 
 const int ledPin = 13;   // the number of the LED pin
@@ -33,18 +36,6 @@ void setup(){
         lastRange[i] = -1; // Initialize lastRange with -1 to indicate uninitialized
         lastChangeTime[i] = 0;
     }
-}
-
-bool buttonsPressed(int button, bool &state){
-    if (digitalRead(button) == HIGH && state == false)
-    {
-        return true;
-    }
-    if (digitalRead(button) == LOW && state == true)
-    {
-        state = false;
-    }
-    return false;
 }
 
 void loop(){
@@ -75,35 +66,53 @@ void handlePotentiometer(int pot, int index) {
         lastChangeTime[index] = millis();
         lastPotValue[index] = potValue;
     }
-
     if (millis() - lastChangeTime[index] > stabilityDelay && lastChangeTime[index] != 0) {
         checkAndPrintRange(potValue, index, false);
         lastChangeTime[index] = 0;
     }
+
 }
 
 void checkAndPrintRange(int potValue, int index, bool forcePrint) {
     float rangeWidth = 1024.0 / numRanges[index]; // Use 1024 to include the upper boundary and float for division
     int currentRange = static_cast<int>(floor(potValue / rangeWidth));
-
     if (currentRange != lastRange[index] || forcePrint) {
-        Serial.print("{'INPUT': ");
         // Example customization based on potentiometer and range
         if (index == 0) { // For first potentiometer
-        Serial.print("'STYLE', 'VALUE': ");
             switch (currentRange) {
-                case 0: Serial.print("PHOTO"); break;
-                case 1: Serial.print("DIGITAL_ART"); break;
-                case 2: Serial.print("ANIME"); break;
+                case 0: Serial.println(createMessage("STYLE", "PHOTO")); break;
+                case 1: Serial.println(createMessage("STYLE", "DIGITAL_ART")); break;
+                case 2: Serial.println(createMessage("STYLE", "ANIME")); break;
             }
         } else if (index == 1) { // For second potentiometer
             switch (currentRange) {
-                case 0: Serial.println("{'INPUT': 'POT2', 'VALUE': 'LOW'}"); break;
-                case 1: Serial.println("{'INPUT': 'POT2', 'VALUE': 'MEDIUM'}"); break;
-                case 2: Serial.println("{'INPUT': 'POT2', 'VALUE': 'HIGH'}"); break;
+                case 0: Serial.println(createMessage("BACKGROUND", "NONE" )); break;
+                case 1: Serial.println(createMessage("BACKGROUND", "CITY" )); break;
+                case 2: Serial.println(createMessage("BACKGROUND", "FOREST" )); break;
+            }
+        } else if (index == 2) { // For third potentiometer
+            switch (currentRange) {
+                case 0: Serial.println(createMessage("TIME", "CURRENT" )); break;
+                case 1: Serial.println(createMessage("TIME", "FUTURE" )); break;
+                case 2: Serial.println(createMessage("TIME", "PAST" )); break;
             }
         }
-        Serial.println("'}");
         lastRange[index] = currentRange;
     }
+}
+
+String createMessage (String input, String value){
+    return "{'INPUT': '" + input + "' , 'VALUE': '" + value + "'}";
+}
+
+bool buttonsPressed(int button, bool &state){
+    if (digitalRead(button) == HIGH && state == false)
+    {
+        return true;
+    }
+    if (digitalRead(button) == LOW && state == true)
+    {
+        state = false;
+    }
+    return false;
 }

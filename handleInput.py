@@ -4,7 +4,7 @@ import pythoncom
 class InputHandler:
     def __init__(self):
         pass
-        self.current_str_append = ""
+        self.stringsToAppend = {}
     
     def perform_scan(self, outputPath, scannerPrinter, gui):
         gui.start_loading_animation()  # Start loading animation
@@ -29,7 +29,7 @@ class InputHandler:
             return
         else:
             prompt = gui.prompt_entry.get()
-            prompt = prompt + self.current_str_append
+            prompt = prompt + self.append_strings()
             gui.start_loading_animation()  # Start loading animation
             threading.Thread(target=self.send_to_replicate_thread, args=(inputPath, prompt, replicate, gui, scannerPrinter)).start()
         
@@ -45,5 +45,12 @@ class InputHandler:
         finally:
             pythoncom.CoUninitialize()
             
-    def append_to_prompt(self, str_append):
-        self.current_str_append = ", " + str_append
+    def add_string_to_append_dict(self, input, strToAppend):
+        self.stringsToAppend[input] = strToAppend
+
+    def append_strings(self):
+        self.current_str_append = ""
+        for input in self.stringsToAppend:
+            self.current_str_append = self.current_str_append + ", " + self.stringsToAppend[input]
+        print(self.current_str_append)
+        return self.current_str_append

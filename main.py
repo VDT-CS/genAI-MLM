@@ -32,9 +32,19 @@ if __name__ == "__main__":
         "SCAN": lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
         "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
         "STYLE": {
-            "PHOTO": lambda: onInput.append_to_prompt("Photo realistic, Canon 5D Mark IV"),
-            "DIGITAL_ART": lambda: onInput.append_to_prompt("Digital Art, 3D modeling"),
-            "ANIME": lambda: onInput.append_to_prompt("Anime, Manga")
+            "PHOTO": lambda: onInput.add_string_to_append_dict("STYLE", "Photo realistic, Canon 5D Mark IV"),
+            "DIGITAL_ART": lambda: onInput.add_string_to_append_dict("STYLE","Digital Art, 3D modeling"),
+            "ANIME": lambda: onInput.add_string_to_append_dict("STYLE", "Anime, Manga")
+        },
+        "BACKGROUND":{
+            "WHITE": lambda: onInput.add_string_to_append_dict("BACKGROUND", "White, monotone background"),
+            "CITY": lambda: onInput.add_string_to_append_dict("BACKGROUND","Sprawling cityscape, urban setting, city lights, skyscrapers"),
+            "FOREST": lambda: onInput.add_string_to_append_dict("BACKGROUND","Living forest, lush greenery, wildlife, natural setting")
+        },
+        "TIME": {
+            "CURRENT": lambda: onInput.add_string_to_append_dict("TIME", "Current time period"),
+            "FUTURE": lambda: onInput.add_string_to_append_dict("TIME", "Futuristic time period"),
+            "PAST": lambda: onInput.add_string_to_append_dict("TIME", "Historical time period")
         }
     }
 
