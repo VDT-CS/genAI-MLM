@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-import threading
 import glob
 
 # This class is responsible for the GUI of the Image Generator
@@ -14,8 +13,14 @@ class ImageGeneratorGUI:
                  send_to_replicate_callback,
                  guiMode = None,):
         
+        large_font = ('Verdana', 20)
+        
         self.root = root
         root.title("Image Generator")
+        
+        self.window_size = "1024x600"
+        root.geometry(self.window_size)
+        
         root.attributes('-fullscreen', True)  # Start in fullscreen mode
 
         # Bind the toggle_fullscreen and end_fullscreen methods to F11 and Esc keys
@@ -35,8 +40,8 @@ class ImageGeneratorGUI:
         self.image_label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # Prompt entry across the full width below the image
-        self.prompt_entry = tk.Entry(root)
-        self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)  # Padding for aesthetics
+        self.prompt_entry = tk.Entry(root, font=large_font)
+        self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=5, pady=10)  # Padding for aesthetics
 
         if guiMode == "GuiMode":
         # Frame for buttons at the bottom
@@ -44,10 +49,10 @@ class ImageGeneratorGUI:
             self.button_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
             # Buttons within the frame
-            self.scan_button = tk.Button(self.button_frame, text="Scan Image", command=scan_callback)
+            self.scan_button = tk.Button(self.button_frame, text="Scan Image", command=scan_callback, font=large_font)
             self.scan_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-            self.send_button = tk.Button(self.button_frame, text="Generate Image", command=send_to_replicate_callback)
+            self.send_button = tk.Button(self.button_frame, text="Generate Image", command=send_to_replicate_callback, font=large_font)
             self.send_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
         self.loading_frames_paths = sorted(glob.glob('gfx/loading/*.png'))
@@ -57,21 +62,24 @@ class ImageGeneratorGUI:
         self.loading = False
         
     def toggle_fullscreen(self, event=None):
-        self.root.attributes('-fullscreen', not self.root.attributes('-fullscreen'))
+        is_fullscreen = self.root.attributes('-fullscreen')
+        if is_fullscreen:
+            # If currently fullscreen, turn off fullscreen and set window to default size
+            self.root.attributes('-fullscreen', False)
+            self.root.geometry(self.window_size)  # Revert to default size when exiting fullscreen
+        else:
+            # Turn on fullscreen
+            self.root.attributes('-fullscreen', True)
         return "break"
 
     def end_fullscreen(self, event=None):
+        # Specifically for exiting fullscreen with the Esc key
         self.root.attributes('-fullscreen', False)
+        self.root.geometry(self.window_size)  # Revert to default size when exiting fullscreen
         return "break"
     
     def update_scanned_image(self, image_path):
         self.display_image(image_path)
-
-    def OLD_scan_and_display(self):
-        output_path = "scanned_image.jpg"
-        self.start_loading_animation()  # Start loading animation
-        threading.Thread(target=self.perform_scan, args=(output_path,)).start()
-        #and end it here
 
     def start_loading_animation(self):
         self.loading = True
@@ -123,7 +131,7 @@ class ImageGeneratorGUI:
     def show_temporary_message(self, message):
         # Now, pack the temporary message label within the top frame when needed
         self.temp_message_label.config(text=message)
-        self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+        self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
     def hide_temporary_message(self):
         # Use pack_forget to remove the label from the top frame, hiding it
