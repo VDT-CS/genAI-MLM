@@ -48,7 +48,6 @@ if __name__ == "__main__":
     gui = ImageGeneratorGUI(root,
                             lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
                             lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
-                            "GuiMode"
                             )
     
     # Callbacks for arduino input
