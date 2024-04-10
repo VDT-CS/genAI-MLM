@@ -1,2 +1,3 @@
-# sketch-to-image-machine
-Code-base for a future, sketch-to-image tangible interface
+# Sketch-to-image Machine
+
+This is the code-base for a research collaboration between the Department of Computer Science at Aarhus University and Kolding Design School.
