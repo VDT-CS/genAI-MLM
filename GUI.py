@@ -17,10 +17,18 @@ class ImageGeneratorGUI:
         self.root = root
         root.title("Image Generator")
         root.attributes('-fullscreen', True)  # Start in fullscreen mode
-        
-        # Bind the toggle_fullscreen and end_fullscreen methods to F11 and Esc keys, respectively
+
+        # Bind the toggle_fullscreen and end_fullscreen methods to F11 and Esc keys
         root.bind('<F11>', self.toggle_fullscreen)
         root.bind('<Escape>', self.end_fullscreen)
+
+        # Create an empty frame at the top to reserve space
+        self.top_frame = tk.Frame(root)
+        self.top_frame.pack(side=tk.TOP, fill=tk.X)
+        
+        # Create the temporary message label within the top frame but don't display it yet
+        self.temp_message_label = tk.Label(self.top_frame, bg="yellow", fg="black", text="")
+        # No need to pack it now; it will be packed within the frame when needed
 
         # Image display label at the top
         self.image_label = tk.Label(root)
@@ -111,3 +119,12 @@ class ImageGeneratorGUI:
         
     def show_error(self, title, message):
         messagebox.showerror(title, message)
+        
+    def show_temporary_message(self, message):
+        # Now, pack the temporary message label within the top frame when needed
+        self.temp_message_label.config(text=message)
+        self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+
+    def hide_temporary_message(self):
+        # Use pack_forget to remove the label from the top frame, hiding it
+        self.temp_message_label.pack_forget()
