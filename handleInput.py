@@ -12,6 +12,7 @@ class InputHandler:
     def perform_scan(self, outputPath, scannerPrinter, gui):
         if self.shutdown_event.is_set():
             return
+        gui.start_loading_animation()
         t = threading.Thread(target=self.threadedScan, args=(outputPath, scannerPrinter, gui))
         t.start()
         self.thread_start(t)

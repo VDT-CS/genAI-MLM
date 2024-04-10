@@ -93,7 +93,6 @@ class ImageGeneratorGUI:
     def animate_loading(self):
         if self.loading:
             frame = self.loading_frames[self.loading_index]
-            #print(self.loading_index) #for debugging
             self.loading_label.config(image=frame)
             self.loading_label.image = frame  # Keep a reference
             self.loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)  # Adjust position as needed
