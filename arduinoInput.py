@@ -1,6 +1,5 @@
 import threading
 import serial
-import json
 import ast
 
 class SerialListener:

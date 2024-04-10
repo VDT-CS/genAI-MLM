@@ -1,7 +1,7 @@
 # Ignore environment files
 *.env
 *.vscode
-**/__pycache__
-generatedImage.jpg
-scanned_image.jpg
+__pycache__/
+*.jpg
+.venv/
 pytorch_model.bin

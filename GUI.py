@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import threading
-import printer_scanner_functions as psf # Import the printer_scanner_functions module
 import glob
 
 # This class is responsible for the GUI of the Image Generator
