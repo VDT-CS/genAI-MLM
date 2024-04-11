@@ -55,25 +55,25 @@ if __name__ == "__main__":
         "SCAN": lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
         "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
         "STYLE": {
-            "PHOTO": lambda: onInput.add_string_to_append_dict("STYLE", "Rendered in a photo-realistic style akin to high-resolution imagery captured with a Canon 5D Mark IV camera"),
-            "DIGITAL_ART": lambda: onInput.add_string_to_append_dict("STYLE","Crafted in a digital art format, with intricate 3D modeling elements, reminiscent of works found on Deviant Art"),
-            "ANIME": lambda: onInput.add_string_to_append_dict("STYLE", "Illustrated in an anime style, featuring manga influences, detailed pencil strokes, and Japanese-style drawing techniques, including cross-hatching for texture")
-        },
-        "BACKGROUND":{
-            "NONE": lambda: onInput.add_string_to_append_dict("BACKGROUND", "The scene is set against a white, monotone background, emphasizing simplicity and focus on the subject"),
-            "CITY": lambda: onInput.add_string_to_append_dict("BACKGROUND","A sprawling cityscape serves as the backdrop, with an urban setting illuminated by city lights and towering skyscrapers"),
-            "FOREST": lambda: onInput.add_string_to_append_dict("BACKGROUND","The setting is a living forest, teeming with lush greenery, diverse wildlife, and the untouched beauty of a natural environment")
+            "PHOTO": lambda: onInput.add_string_to_append_dict("STYLE", "Rendered as a high-resolution photo by a Canon 5D Mark IV"),
+            "DIGITAL_ART": lambda: onInput.add_string_to_append_dict("STYLE","In the style of Deviant Art's digital 3D art"),
+            "ANIME": lambda: onInput.add_string_to_append_dict("STYLE", "Anime-inspired, with detailed pencil and cross-hatching")
         },
         "TIME": {
-            "CURRENT": lambda: onInput.add_string_to_append_dict("TIME", "The depiction is grounded in the current time period, reflecting modern-day aesthetics and sensibilities"),
-            "FUTURE": lambda: onInput.add_string_to_append_dict("TIME", "Envisioned in a futuristic time period, showcasing advanced technology, speculative design, and a forward-thinking ethos"),
-            "PAST": lambda: onInput.add_string_to_append_dict("TIME", "Set against a historical backdrop, evoking the ambiance and characteristics of a bygone era")
+            "CURRENT": lambda: onInput.add_string_to_append_dict("TIME", "Set in the present days"),
+            "FUTURE": lambda: onInput.add_string_to_append_dict("TIME", "Imagined in a speculative, futuristic era"),
+            "PAST": lambda: onInput.add_string_to_append_dict("TIME", "Rooted in historical times")
         },
         "TONE":{
-            "NONE": lambda: onInput.add_string_to_append_dict("TONE", "The piece carries a neutral tone, without a specific thematic emphasis"),
-            "CRITICAL": lambda: onInput.add_string_to_append_dict("TONE", "Conveyed with a serious and critical tone, incorporating dark themes and a profound sense of introspection"),
-            "CARING": lambda: onInput.add_string_to_append_dict("TONE", "Infused with a caring and nurturing tone, radiating positive themes and a comforting atmosphere"),
-            "WHIMSICAL": lambda: onInput.add_string_to_append_dict("TONE", "Characterized by whimsical and playful elements, creating a light-hearted and joyous theme")
+            "NONE": lambda: onInput.add_string_to_append_dict("TONE", "Neutral tone, no thematic emphasis"),
+            "CRITICAL": lambda: onInput.add_string_to_append_dict("TONE", "Serious, introspective themes"),
+            "CARING": lambda: onInput.add_string_to_append_dict("TONE", "Infused with a caring and nurturing tone"),
+            "WHIMSICAL": lambda: onInput.add_string_to_append_dict("TONE", "Whimsical, playful, and light-hearted")
+        },
+        "BACKGROUND":{
+            "NONE": lambda: onInput.add_string_to_append_dict("BACKGROUND", "No background", "Exclude colors, shadows, and textures in the background"),
+            "CITY": lambda: onInput.add_string_to_append_dict("BACKGROUND","Background overlooking a vibrant, lit-up cityscape"),
+            "FOREST": lambda: onInput.add_string_to_append_dict("BACKGROUND","Background within a lively, verdant forest")
         }
     }
 

@@ -10,16 +10,17 @@ class Replicate:
         # Load API token
         load_dotenv()
         self.api_key = api_key
-        self.appended_prompt = ""
+        self.appended_negative_prompt = ""
     
     #Generate image from sketch
-    def generate(self, file_path, userPrompt):
+    def generate(self, file_path, userPrompt, negative_prompt):
         api_key = os.getenv(self.api_key)
         deployment = replicate.deployments.get("vdt-cs/sketch-to-image")
         
         with open(file_path, 'rb') as sketch_file_object:
             prediction = deployment.predictions.create(input={"image": sketch_file_object, 
-                                                              "prompt": userPrompt + self.appended_prompt
+                                                              "prompt": userPrompt,
+                                                              "negative_prompt": "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured" + negative_prompt
                                                               })
         prediction.wait()
         if isinstance(prediction.output, list) and len(prediction.output) > 1:
