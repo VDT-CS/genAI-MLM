@@ -68,6 +68,12 @@ if __name__ == "__main__":
             "CURRENT": lambda: onInput.add_string_to_append_dict("TIME", "Current time period"),
             "FUTURE": lambda: onInput.add_string_to_append_dict("TIME", "Futuristic time period"),
             "PAST": lambda: onInput.add_string_to_append_dict("TIME", "Historical time period")
+        },
+        "TONE":{
+            "NONE": lambda: onInput.add_string_to_append_dict("TONE", "No specific tone"),
+            "CRITICAL": lambda: onInput.add_string_to_append_dict("TONE", "Serious, critical, dark themes"),
+            "CARING": lambda: onInput.add_string_to_append_dict("TONE", "Caring, nurturing, positive themes"),
+            "WHIMSICAL": lambda: onInput.add_string_to_append_dict("TONE", "Whimsical, playful, light-hearted themes")
         }
     }
 

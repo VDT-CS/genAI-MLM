@@ -4,10 +4,11 @@ const int buttonPin2 = 3; // the number of the pushbutton pin
 // Potentiometer pins
 const int style = A0;                
 const int background = A1;  
-const int time = A2;  
+const int time = A2;
+const int _tone = A3;
 
-const int potentiometers[] = {style, background, time}; // Important! Add all potetionemeters here
-const int numRanges[] = {3, 3, 3}; // Number of ranges you want to divide the potentiometer readings into
+const int potentiometers[] = {style, background, time, _tone}; // Important! Add all potetionemeters here
+const int numRanges[] = {3, 3, 3, 4}; // Number of ranges you want to divide the potentiometer readings into
 
 const int numPots = sizeof(potentiometers) / sizeof(potentiometers[0]);
 int lastPotValue[numPots];        // Stores the last potentiometer values
@@ -35,6 +36,7 @@ void setup(){
         lastPotValue[i] = analogRead(potentiometers[i]);
         lastRange[i] = -1; // Initialize lastRange with -1 to indicate uninitialized
         lastChangeTime[i] = 0;
+        checkAndPrintRange(lastPotValue[i], i, true);
     }
 }
 
@@ -95,6 +97,13 @@ void checkAndPrintRange(int potValue, int index, bool forcePrint) {
                 case 0: Serial.println(createMessage("TIME", "CURRENT" )); break;
                 case 1: Serial.println(createMessage("TIME", "FUTURE" )); break;
                 case 2: Serial.println(createMessage("TIME", "PAST" )); break;
+            }
+        } else if (index == 3) { // For fourth potentiometer
+            switch (currentRange) {
+                case 0: Serial.println(createMessage("TONE", "NONE" )); break;
+                case 1: Serial.println(createMessage("TONE", "CRITICAL" )); break;
+                case 2: Serial.println(createMessage("TONE", "CARING" )); break;
+                case 3: Serial.println(createMessage("TONE", "WHIMSICAL" )); break;
             }
         }
         lastRange[index] = currentRange;
