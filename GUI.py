@@ -4,14 +4,14 @@ from PIL import Image, ImageTk
 import glob
 
 # This class is responsible for the GUI of the Image Generator
-class ImageGeneratorGUI:
+class Image_Generator_GUI:
 
     has_scanned = False
 
     def __init__(self, root, 
                  scan_callback,
                  send_to_replicate_callback,
-                 guiMode = None,):
+                 gui_mode = None,):
         
         large_font = ('Verdana', 20)
         
@@ -43,7 +43,7 @@ class ImageGeneratorGUI:
         self.prompt_entry = tk.Entry(root, font=large_font)
         self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=5, pady=10)  # Padding for aesthetics
 
-        if guiMode == "GuiMode":
+        if gui_mode == "gui_mode":
         # Frame for buttons at the bottom
             self.button_frame = tk.Frame(root)
             self.button_frame.pack(side=tk.BOTTOM, fill=tk.X)

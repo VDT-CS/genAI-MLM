@@ -5,7 +5,7 @@ import win32ui
 import win32com.client
 from PIL import Image, ImageWin
 
-class ScannerPrinter:
+class Scanner_Printer:
     
     def __init__(self):
         self.physical_width = 110

@@ -2,7 +2,7 @@ import threading
 import serial
 import ast
 
-class SerialListener:
+class Serial_Listener:
     def __init__(self, callbacks, com_port='COM3', baud_rate=115200):
         self.callbacks = callbacks
         self.shutdown_event = threading.Event()
@@ -46,7 +46,7 @@ class SerialListener:
     def shutdown(self):
         self.shutdown_event.set()
         self.thread.join()
-        print("SerialListener shutdown complete.")
+        print("Serial_Listener shutdown complete.")
     
     def is_active(self):
         return self.thread.is_alive()
@@ -67,8 +67,8 @@ if __name__ == "__main__":
         "GENERATE": callback2,
     }
 
-    # Initialize SerialListener with the defined callbacks
-    serial_listener = SerialListener(callbacks)
+    # Initialize Serial_Listener with the defined callbacks
+    serial_listener = Serial_Listener(callbacks)
 
     print("Press Enter to exit...")
     input()  # Wait for user input to exit
