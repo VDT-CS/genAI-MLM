@@ -55,25 +55,25 @@ if __name__ == "__main__":
         "SCAN": lambda: onInput.perform_scan("scanned_image.jpg", scanner_printer, gui),
         "GENERATE": lambda: onInput.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
         "STYLE": {
-            "PHOTO": lambda: onInput.add_string_to_append_dict("STYLE", "Photo realistic, Canon 5D Mark IV"),
-            "DIGITAL_ART": lambda: onInput.add_string_to_append_dict("STYLE","Digital Art, 3D modeling"),
-            "ANIME": lambda: onInput.add_string_to_append_dict("STYLE", "Anime, Manga")
+            "PHOTO": lambda: onInput.add_string_to_append_dict("STYLE", "Rendered in a photo-realistic style akin to high-resolution imagery captured with a Canon 5D Mark IV camera"),
+            "DIGITAL_ART": lambda: onInput.add_string_to_append_dict("STYLE","Crafted in a digital art format, with intricate 3D modeling elements, reminiscent of works found on Deviant Art"),
+            "ANIME": lambda: onInput.add_string_to_append_dict("STYLE", "Illustrated in an anime style, featuring manga influences, detailed pencil strokes, and Japanese-style drawing techniques, including cross-hatching for texture")
         },
         "BACKGROUND":{
-            "NONE": lambda: onInput.add_string_to_append_dict("BACKGROUND", "White, monotone background"),
-            "CITY": lambda: onInput.add_string_to_append_dict("BACKGROUND","Sprawling cityscape, urban setting, city lights, skyscrapers"),
-            "FOREST": lambda: onInput.add_string_to_append_dict("BACKGROUND","Living forest, lush greenery, wildlife, natural setting")
+            "NONE": lambda: onInput.add_string_to_append_dict("BACKGROUND", "The scene is set against a white, monotone background, emphasizing simplicity and focus on the subject"),
+            "CITY": lambda: onInput.add_string_to_append_dict("BACKGROUND","A sprawling cityscape serves as the backdrop, with an urban setting illuminated by city lights and towering skyscrapers"),
+            "FOREST": lambda: onInput.add_string_to_append_dict("BACKGROUND","The setting is a living forest, teeming with lush greenery, diverse wildlife, and the untouched beauty of a natural environment")
         },
         "TIME": {
-            "CURRENT": lambda: onInput.add_string_to_append_dict("TIME", "Current time period"),
-            "FUTURE": lambda: onInput.add_string_to_append_dict("TIME", "Futuristic time period"),
-            "PAST": lambda: onInput.add_string_to_append_dict("TIME", "Historical time period")
+            "CURRENT": lambda: onInput.add_string_to_append_dict("TIME", "The depiction is grounded in the current time period, reflecting modern-day aesthetics and sensibilities"),
+            "FUTURE": lambda: onInput.add_string_to_append_dict("TIME", "Envisioned in a futuristic time period, showcasing advanced technology, speculative design, and a forward-thinking ethos"),
+            "PAST": lambda: onInput.add_string_to_append_dict("TIME", "Set against a historical backdrop, evoking the ambiance and characteristics of a bygone era")
         },
         "TONE":{
-            "NONE": lambda: onInput.add_string_to_append_dict("TONE", "No specific tone"),
-            "CRITICAL": lambda: onInput.add_string_to_append_dict("TONE", "Serious, critical, dark themes"),
-            "CARING": lambda: onInput.add_string_to_append_dict("TONE", "Caring, nurturing, positive themes"),
-            "WHIMSICAL": lambda: onInput.add_string_to_append_dict("TONE", "Whimsical, playful, light-hearted themes")
+            "NONE": lambda: onInput.add_string_to_append_dict("TONE", "The piece carries a neutral tone, without a specific thematic emphasis"),
+            "CRITICAL": lambda: onInput.add_string_to_append_dict("TONE", "Conveyed with a serious and critical tone, incorporating dark themes and a profound sense of introspection"),
+            "CARING": lambda: onInput.add_string_to_append_dict("TONE", "Infused with a caring and nurturing tone, radiating positive themes and a comforting atmosphere"),
+            "WHIMSICAL": lambda: onInput.add_string_to_append_dict("TONE", "Characterized by whimsical and playful elements, creating a light-hearted and joyous theme")
         }
     }
 

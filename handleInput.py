@@ -59,7 +59,7 @@ class InputHandler:
     def append_strings(self):
         self.current_str_append = ""
         for input in self.stringsToAppend:
-            self.current_str_append = self.current_str_append + ", " + self.stringsToAppend[input]
+            self.current_str_append = self.current_str_append + "; " + self.stringsToAppend[input]
         print(self.current_str_append)
         return self.current_str_append
     
