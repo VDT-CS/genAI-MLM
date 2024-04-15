@@ -1,5 +1,9 @@
 import threading
 import pythoncom
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 class Input_Handler:
     def __init__(self):
@@ -9,6 +13,8 @@ class Input_Handler:
         self.shutdown_event = threading.Event()
         self.active_threads = set()
         self.lock = threading.Lock()
+
+        self.printer_name = os.getenv('PRINTER_NAME')
     
     def perform_scan(self, output_path, scanner_printer, gui):
         if self.shutdown_event.is_set():
@@ -49,7 +55,7 @@ class Input_Handler:
         try:
             print("Sending image to replicate...")
             image_path = replicate.download_image(replicate.generate(file_path, prompt, negative_prompt), "generated_image.jpg")
-            scanner_printer.print_image(image_path, "HP ENVY 5530 series")
+            scanner_printer.print_image(image_path, self.printer_name)
             gui.root.after(0, gui.stop_loading_animation)
         finally:
             pythoncom.CoUninitialize()
