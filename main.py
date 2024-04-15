@@ -1,4 +1,5 @@
 import tkinter as  tk # for initiliazing the root window
+import argparse
 
 from gui import Image_Generator_GUI
 from printer_scanner_functions import Scanner_Printer
@@ -8,6 +9,32 @@ from arduino_input import Serial_Listener
 
 threadsToClose = []
 
+# Callbacks for arduino input
+callbacks = {
+        "SCAN": lambda: on_input.perform_scan("scanned_image.jpg", scanner_printer, gui),
+        "GENERATE": lambda: on_input.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
+        "STYLE": {
+            "PHOTO": lambda: on_input.add_string_to_append_dict("STYLE", "Rendered as a high-resolution photo by a Canon 5D Mark IV"),
+            "DIGITAL_ART": lambda: on_input.add_string_to_append_dict("STYLE","In the style of Deviant Art's digital 3D art"),
+            "ANIME": lambda: on_input.add_string_to_append_dict("STYLE", "Anime-inspired, with detailed pencil and cross-hatching")
+        },
+        "TIME": {
+            "CURRENT": lambda: on_input.add_string_to_append_dict("TIME", "Set in the present days"),
+            "FUTURE": lambda: on_input.add_string_to_append_dict("TIME", "Imagined in a speculative, futuristic era"),
+            "PAST": lambda: on_input.add_string_to_append_dict("TIME", "Rooted in historical times")
+        },
+        "TONE":{
+            "NONE": lambda: on_input.add_string_to_append_dict("TONE", "Neutral tone, no thematic emphasis"),
+            "CRITICAL": lambda: on_input.add_string_to_append_dict("TONE", "Serious, introspective themes"),
+            "CARING": lambda: on_input.add_string_to_append_dict("TONE", "Infused with a caring and nurturing tone"),
+            "WHIMSICAL": lambda: on_input.add_string_to_append_dict("TONE", "Whimsical, playful, and light-hearted")
+        },
+        "BACKGROUND":{
+            "NONE": lambda: on_input.add_string_to_append_dict("BACKGROUND", "No background", "Exclude colors, shadows, and textures in the background"),
+            "CITY": lambda: on_input.add_string_to_append_dict("BACKGROUND","Background overlooking a vibrant, lit-up cityscape"),
+            "FOREST": lambda: on_input.add_string_to_append_dict("BACKGROUND","Background within a lively, verdant forest")
+        }
+}
 
 def initialize_serial_listener(callbacks):
     arduinoInput = Serial_Listener(callbacks)
@@ -36,7 +63,11 @@ def check_and_finalize_shutdown(root, gui):
 
 
 if __name__ == "__main__":
-    api_key = "REPLICATE_API_KEY"
+    api_key = 'REPLICATE_API_TOKEN'
+
+    parser = argparse.ArgumentParser(description="Control the mode of the application")
+    parser.add_argument("--mode", choices=["arduino", "gui"], required=True, help="Run the program in 'arduino-mode' or 'gui-mode'")
+    args = parser.parse_args()
 
     replicate = Replicate(api_key)
     scanner_printer = Scanner_Printer()
@@ -44,40 +75,20 @@ if __name__ == "__main__":
     threadsToClose.append(on_input)
 
     root = tk.Tk()  # Create the root window
-    
-    gui = Image_Generator_GUI(root,
+
+    if args.mode == "arduino":
+        gui = Image_Generator_GUI(root)
+
+        # Initialize serial listener if Arduino mode is selected
+        root.after(100, lambda: initialize_serial_listener(callbacks))
+    if args.mode == "gui":
+        gui = Image_Generator_GUI(root,
+                            "gui_mode",
+                            callbacks,
                             lambda: on_input.perform_scan("scanned_image.jpg", scanner_printer, gui),
                             lambda: on_input.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
                             )
-    
-    # Callbacks for arduino input
-    arduino_callbacks = {
-        "SCAN": lambda: on_input.perform_scan("scanned_image.jpg", scanner_printer, gui),
-        "GENERATE": lambda: on_input.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
-        "STYLE": {
-            "PHOTO": lambda: on_input.add_string_to_append_dict("STYLE", "Rendered as a high-resolution photo by a Canon 5D Mark IV"),
-            "DIGITAL_ART": lambda: on_input.add_string_to_append_dict("STYLE","In the style of Deviant Art's digital 3D art"),
-            "ANIME": lambda: on_input.add_string_to_append_dict("STYLE", "Anime-inspired, with detailed pencil and cross-hatching")
-        },
-        "TIME": {
-            "CURRENT": lambda: on_input.add_string_to_append_dict("TIME", "Set in the present days"),
-            "FUTURE": lambda: on_input.add_string_to_append_dict("TIME", "Imagined in a speculative, futuristic era"),
-            "PAST": lambda: on_input.add_string_to_append_dict("TIME", "Rooted in historical times")
-        },
-        "TONE":{
-            "NONE": lambda: on_input.add_string_to_append_dict("TONE", "Neutral tone, no thematic emphasis"),
-            "CRITICAL": lambda: on_input.add_string_to_append_dict("TONE", "Serious, introspective themes"),
-            "CARING": lambda: on_input.add_string_to_append_dict("TONE", "Infused with a caring and nurturing tone"),
-            "WHIMSICAL": lambda: on_input.add_string_to_append_dict("TONE", "Whimsical, playful, and light-hearted")
-        },
-        "BACKGROUND":{
-            "NONE": lambda: on_input.add_string_to_append_dict("BACKGROUND", "No background", "Exclude colors, shadows, and textures in the background"),
-            "CITY": lambda: on_input.add_string_to_append_dict("BACKGROUND","Background overlooking a vibrant, lit-up cityscape"),
-            "FOREST": lambda: on_input.add_string_to_append_dict("BACKGROUND","Background within a lively, verdant forest")
-        }
-    }
 
-    root.after(100, lambda: initialize_serial_listener(arduino_callbacks))
     root.protocol("WM_DELETE_WINDOW", lambda: set_shutdown_procedure(root, gui))
     
     root.mainloop()

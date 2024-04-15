@@ -59,6 +59,10 @@ class Input_Handler:
         self.prompts_to_append[input] = strToAppend
         if negative_prompt != "":
             self.negative_prompt_to_append[input] = negative_prompt
+        else:
+            # Remove the entry from the dictionary if negative_prompt is empty
+            if input in self.negative_prompt_to_append:
+                del self.negative_prompt_to_append[input]
 
     def append_strings(self, append_from_dict):
         self.current_str_append = ""

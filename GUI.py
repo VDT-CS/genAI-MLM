@@ -8,14 +8,18 @@ class Image_Generator_GUI:
 
     has_scanned = False
 
-    def __init__(self, root, 
-                 scan_callback,
-                 send_to_replicate_callback,
-                 gui_mode = None,):
+    def __init__(self, root,
+                 gui_mode = None,
+                 input_callbacks = None,
+                 scan_callback = None,
+                 send_to_replicate_callback = None,
+                 ):
         
         large_font = ('Verdana', 20)
         
         self.root = root
+        self.input_callbacks = input_callbacks
+
         root.title("Image Generator")
         
         self.window_size = "1024x600"
@@ -44,6 +48,14 @@ class Image_Generator_GUI:
         self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=5, pady=10)  # Padding for aesthetics
 
         if gui_mode == "gui_mode":
+            if not scan_callback or not send_to_replicate_callback or not self.input_callbacks:
+                raise ValueError("scan_callback and send_to_replicate_callback must be provided when gui_mode is set")
+
+            self.dropdown_frame = tk.Frame(root)
+            self.dropdown_frame.pack(side=tk.TOP, fill=tk.X)
+
+            self.setup_dropdown_menus()
+
         # Frame for buttons at the bottom
             self.button_frame = tk.Frame(root)
             self.button_frame.pack(side=tk.BOTTOM, fill=tk.X)
@@ -60,6 +72,27 @@ class Image_Generator_GUI:
         self.loading_label = tk.Label(self.image_label)  # Assuming image_label is where you want the animation
         self.loading_index = 0
         self.loading = False
+
+    def setup_dropdown_menus(self):
+        for category, actions in self.input_callbacks.items():
+            if isinstance(actions, dict):  # Check if the category has sub-options
+                # Create a label for the dropdown
+                label_text = f"{category.capitalize()}:"
+                category_label = tk.Label(self.dropdown_frame, text=label_text, font=('Verdana', 12))
+                category_label.pack(side=tk.LEFT, padx=(10, 0))
+
+                # Create the dropdown menu
+                var = tk.StringVar(self.root)
+                var.set(f"Choose {category}")
+                menu = tk.OptionMenu(self.dropdown_frame, var, *actions.keys(), command=self.get_option_command(actions, var))
+                menu.pack(side=tk.LEFT, padx=(0, 20))  # Tighten spacing on left and add space on right
+
+
+    def get_option_command(self, options, var):
+        def command(selected_option):
+            callback = options[selected_option]
+            callback()
+        return command
         
     def toggle_fullscreen(self, event=None):
         is_fullscreen = self.root.attributes('-fullscreen')

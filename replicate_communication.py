@@ -16,11 +16,14 @@ class Replicate:
     def generate(self, file_path, user_prompt, negative_prompt):
         api_key = os.getenv(self.api_key)
         deployment = replicate.deployments.get("vdt-cs/sketch-to-image")
+        standard_negative_prompt = "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured"
         
+        print("Generating with prompt: " + user_prompt + ", and negative prompt: " + standard_negative_prompt + negative_prompt)
+
         with open(file_path, 'rb') as sketch_file_object:
             prediction = deployment.predictions.create(input={"image": sketch_file_object, 
                                                               "prompt": user_prompt,
-                                                              "negative_prompt": "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured" + negative_prompt
+                                                              "negative_prompt": standard_negative_prompt + negative_prompt
                                                               })
         prediction.wait()
         if isinstance(prediction.output, list) and len(prediction.output) > 1:
@@ -44,5 +47,8 @@ class Replicate:
     
 # For debugging purposes
 if __name__ == "__main__":
-    rep = Replicate("REPLICATE_API_KEY")
-    print(rep.generate("scanned_image.jpg", "A mean Shark"))
+    load_dotenv()
+    api_key = os.getenv('REPLICATE_API_TOKEN')
+    print(f"API Key: {api_key}")
+    rep = Replicate(api_key)
+    print(rep.generate("scanned_image.jpg", "A mean Shark", ""))
