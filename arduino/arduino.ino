@@ -4,8 +4,8 @@ const int buttonPin2 = 3; // the number of the pushbutton pin
 // Potentiometer pins
 const int style = A0;                
 const int background = A1;  
-const int time = A2;
-const int _tone = A3;
+const int _tone = A2;
+const int time = A3;
 
 const int potentiometers[] = {style, background, time, _tone}; // Important! Add all potetionemeters here
 const int numRanges[] = {3, 3, 3, 4}; // Number of ranges you want to divide the potentiometer readings into
@@ -15,7 +15,7 @@ int lastPotValue[numPots];        // Stores the last potentiometer values
 int lastRange[numPots];           // Stores the last range states for each potentiometer
 unsigned long lastChangeTime[numPots]; // Last time the potentiometer value changed for each
 
-const unsigned long stabilityDelay = 50; // Wait for 500ms to ensure value is stable
+const unsigned long stabilityDelay = 10; // Wait for 500ms to ensure value is stable
 const int threshold = 5; // Threshold for detecting change in potentiometer value
 
 const int ledPin = 13;   // the number of the LED pin
