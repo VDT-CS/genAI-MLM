@@ -46,6 +46,10 @@ class Image_Generator_GUI:
         # Prompt entry across the full width below the image
         self.prompt_entry = tk.Entry(root, font=large_font)
         self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=5, pady=10)  # Padding for aesthetics
+        self.prompt_entry.focus_set()
+
+        if not gui_mode == "gui_mode":
+            self.root.bind("<FocusOut>", self.force_focus)
 
         if gui_mode == "gui_mode":
             if not scan_callback or not send_to_replicate_callback or not self.input_callbacks:
@@ -72,6 +76,10 @@ class Image_Generator_GUI:
         self.loading_label = tk.Label(self.image_label)  # Assuming image_label is where you want the animation
         self.loading_index = 0
         self.loading = False
+
+    def force_focus(self, event=None):
+        """Force the focus to stay on the prompt entry."""
+        self.prompt_entry.focus_set()
 
     def setup_dropdown_menus(self):
         for category, actions in self.input_callbacks.items():
