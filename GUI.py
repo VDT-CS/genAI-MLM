@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import glob
 
 # This class is responsible for the GUI of the Image Generator
-class Image_Generator_GUI:
+class Image_Generator_GUI: 
 
     has_scanned = False
 
