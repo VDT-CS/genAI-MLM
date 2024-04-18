@@ -44,9 +44,13 @@ class Image_Generator_GUI:
         self.image_label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # Prompt entry across the full width below the image
-        self.prompt_entry = tk.Entry(root, font=large_font)
-        self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=5, pady=10)  # Padding for aesthetics
-        self.prompt_entry.focus_set()
+        self.image_label = tk.Label(root)
+        self.image_label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        root.bind('<Configure>', self.on_window_resize)  # Bind resize event
+        self.current_image_path = None
+        self.resize_event_id = None
+        # Capture initial dimensions once the window is stable
+        root.after(100, self.capture_initial_dimensions)
 
         if not gui_mode == "gui_mode":
             self.root.bind("<FocusOut>", self.force_focus)
@@ -126,54 +130,73 @@ class Image_Generator_GUI:
         self.loading = True
         self.loading_index = 0
         self.animate_loading()
+        self.place_loading_animation()  # Ensure it starts in the correct position
 
     def stop_loading_animation(self):
         self.loading = False
-        self.root.after(0, self.loading_label.place_forget)  # Hide the loading label when not in use
+        self.loading_label.place_forget()  # Hide the loading label when not in use
 
     def animate_loading(self):
         if self.loading:
             frame = self.loading_frames[self.loading_index]
             self.loading_label.config(image=frame)
             self.loading_label.image = frame  # Keep a reference
-            self.loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)  # Adjust position as needed
+            # Continuously update position to keep centered
+            self.loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
             self.loading_index = (self.loading_index + 1) % len(self.loading_frames)
             self.root.after(66, self.animate_loading)  # Schedule next frame
 
     def display_image(self, image_path):
-        # Make sure the GUI is updated to ensure label dimensions are accurate
-        self.root.update_idletasks()
-
-        # Load and rotate the image
+        self.current_image_path = image_path  # Keep track of the current image
         img = Image.open(image_path)
-        img = img.rotate(90, expand=True)
+        img = img.rotate(90, expand=True)  # Rotate image if needed
 
-        # Get the dimensions of the label
-        label_width = self.image_label.winfo_width()
-        label_height = self.image_label.winfo_height()
+        # Fetch current window dimensions instead of widget dimensions
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height() - 100  # Adjust height for any other UI elements
 
-        # Calculate the new size while maintaining the aspect ratio
+        # Calculate the new size maintaining aspect ratio
         img_width, img_height = img.size
-        ratio = min(label_width / img_width, label_height / img_height)
+        ratio = min(window_width / img_width, window_height / img_height)
         new_size = (int(img_width * ratio), int(img_height * ratio))
 
-        # Resize the image using LANCZOS (high-quality downsampling)
         img = img.resize(new_size, Image.LANCZOS)
-
-        # Display the image
         img_tk = ImageTk.PhotoImage(img)
+
+        # Configure label to display image
         self.image_label.configure(image=img_tk)
-        self.image_label.image = img_tk  # Keep a reference to prevent garbage-collection
+        self.image_label.image = img_tk  # Store a reference to prevent garbage-collection
+
+        print(f"Updated image size to: {new_size} based on window size: {window_width}x{window_height}")
+
+    def capture_initial_dimensions(self):
+        self.initial_width = self.root.winfo_width()
+        self.initial_height = self.root.winfo_height()
+        print(f"Initial window dimensions: {self.initial_width}x{self.initial_height}")
+    
+    def on_window_resize(self, event):
+        if self.current_image_path:
+            if self.resize_event_id:
+                self.root.after_cancel(self.resize_event_id)
+            self.resize_event_id = self.root.after(500, self.refresh_ui)
         
+    def refresh_ui(self):
+        self.display_image(self.current_image_path)
+        if self.loading:
+            self.place_loading_animation()  # Ensure the correct placement is maintained
+
+    def place_loading_animation(self):
+        # Adjust the loading label's position to always be at the center of the window
+        self.loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+    
     def show_error(self, title, message):
         messagebox.showerror(title, message)
         
     def show_temporary_message(self, message):
-        # Only update text and pack if it's not already visible
-        if not self.temp_message_label.winfo_ismapped():
-            self.temp_message_label.config(text=message)
-            self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        # Now, pack the temporary message label within the top frame when needed
+        self.temp_message_label.config(text=message)
+        self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
-def hide_temporary_message(self):
-    if self.temp_message_label.winfo_ismapped():
+    def hide_temporary_message(self):
+        # Use pack_forget to remove the label from the top frame, hiding it
         self.temp_message_label.pack_forget()

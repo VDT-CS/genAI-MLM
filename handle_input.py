@@ -13,6 +13,7 @@ class Input_Handler:
         self.shutdown_event = threading.Event()
         self.active_threads = set()
         self.lock = threading.Lock()
+        self.scanning = False
 
         self.printer_name = os.getenv('PRINTER_NAME')
     
@@ -21,39 +22,30 @@ class Input_Handler:
             return
         
         gui.start_loading_animation()
-        
-        # Check if the output file already exists
-        if os.path.exists(output_path):
-            # Define the directory to move existing scans
-            previous_scans_dir = 'previous_scans'
-            
-            # Create the directory if it does not exist
-            if not os.path.exists(previous_scans_dir):
-                os.makedirs(previous_scans_dir)
-            
-            # Create a new file name by incrementing numbers
-            new_path = self.create_incremented_filepath(previous_scans_dir, output_path)
-            
-            # Move the file to the new location
-            shutil.move(output_path, new_path)
+
+        temp_output_path = "new_scan.jpg"
 
         # Start the scanning process in a new thread
-        t = threading.Thread(target=self.threadedScan, args=(output_path, scanner_printer, gui))
+        t = threading.Thread(target=self.threadedScan, args=(temp_output_path, output_path, scanner_printer, gui))
         t.start()
         self.thread_start(t)
 
 
-    def threadedScan(self, output_path, scanner_printer, gui):
+    def threadedScan(self,temp_output_path, final_output_path, scanner_printer, gui):
         thread_id = threading.get_ident()
         if sys.platform == 'win32':
             import pythoncom
             pythoncom.CoInitialize()
         try:
-            scanner_printer.scan_image(output_path)
+            scanner_printer.scan_image(temp_output_path)
+
+            self.move_old_scan(final_output_path)
+            shutil.move(temp_output_path, final_output_path)
+
             # Schedule GUI updates to be executed on the main thread
             gui.root.after(0, lambda: setattr(gui, 'has_scanned', True))
             gui.root.after(0, gui.stop_loading_animation)
-            gui.root.after(0, lambda: gui.update_scanned_image(output_path))
+            gui.root.after(0, lambda: gui.update_scanned_image(final_output_path))
         finally:
             print("Scan complete.")
             if sys.platform == 'win32':
@@ -123,6 +115,22 @@ class Input_Handler:
     def is_active(self):
         return any(thread.is_alive() for thread in self.active_threads)
 
+    def move_old_scan(self, output_path):
+        # Check if the output file already exists
+        if os.path.exists(output_path):
+            # Define the directory to move existing scans
+            previous_scans_dir = 'previous_scans'
+            
+            # Create the directory if it does not exist
+            if not os.path.exists(previous_scans_dir):
+                os.makedirs(previous_scans_dir)
+            
+            # Create a new file name by incrementing numbers
+            new_path = self.create_incremented_filepath(previous_scans_dir, output_path)
+            
+            # Move the file to the new location
+            shutil.move(output_path, new_path)
+
     def create_incremented_filepath(self, directory, original_path):
         base_name = os.path.basename(original_path)
         name, ext = os.path.splitext(base_name)
@@ -137,3 +145,4 @@ class Input_Handler:
             new_path = os.path.join(directory, new_name)
         
         return new_path
+    

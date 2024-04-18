@@ -65,19 +65,20 @@ class Scanner_Printer:
             # Save the image
             img.SaveFile(output_path)
         if platform.system() == 'Darwin':  # Placeholder for macOS or other OS
-            self.run_scanline()
+            self.run_scanline(output_path)
         else:
             print("Unsupported OS for printing")
 
 
-    def run_scanline(self):
+    def run_scanline(self, output_path):
+        filename = self.remove_extension(output_path)        
         try:
             # Define the command with parameters
             command = [
                 "scanline",
                 "-flatbed",         # Specifies flatbed scanning
                 "-dir", ".",        # Saves to the current directory
-                "-name", "scanned_image",  # Base name of the file
+                "-name", filename,  # Base name of the file
                 "-jpeg"             # Output format as JPEG
             ]
 
@@ -86,6 +87,14 @@ class Scanner_Printer:
             print("Scan completed successfully.")
         except subprocess.CalledProcessError as e:
             print("Failed to complete scan:", e)
+
+    def remove_extension(self, filename):
+        # Find the last occurrence of the dot
+        last_dot_position = filename.rfind('.')
+        # If a dot was found, slice the string up to that position
+        if last_dot_position != -1:
+            return filename[:last_dot_position]
+        return filename  # Return the original filename if no dot was found
 
 if __name__ == "__main__":
     sp = Scanner_Printer()
