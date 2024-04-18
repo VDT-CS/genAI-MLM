@@ -8,3 +8,5 @@ __pycache__/
 venv/
 pytorch_model.bin
 launch_program.bat
+printImageTool*
+previous_scans/*

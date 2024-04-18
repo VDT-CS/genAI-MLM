@@ -9,12 +9,11 @@ class Replicate:
     def __init__(self, api_key):
         # Load API token
         load_dotenv()
-        self.api_key = api_key
+        self.api_key = os.getenv(api_key)  # Now storing the actual API key value
         self.appended_negative_prompt = ""
-    
-    #Generate image from sketch
+
+    # Generate image from sketch
     def generate(self, file_path, user_prompt, negative_prompt):
-        api_key = os.getenv(self.api_key)
         deployment = replicate.deployments.get("vdt-cs/sketch-to-image")
         standard_negative_prompt = "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured"
         
@@ -48,7 +47,8 @@ class Replicate:
 # For debugging purposes
 if __name__ == "__main__":
     load_dotenv()
-    api_key = os.getenv('REPLICATE_API_TOKEN')
-    print(f"API Key: {api_key}")
+    api_key = 'REPLICATE_API_TOKEN'
+    actual_api_key = os.getenv(api_key)
+    print(f"API Key: {actual_api_key}")
     rep = Replicate(api_key)
     print(rep.generate("scanned_image.jpg", "A mean Shark", ""))

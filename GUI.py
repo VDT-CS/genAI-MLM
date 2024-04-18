@@ -169,10 +169,11 @@ class Image_Generator_GUI:
         messagebox.showerror(title, message)
         
     def show_temporary_message(self, message):
-        # Now, pack the temporary message label within the top frame when needed
-        self.temp_message_label.config(text=message)
-        self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        # Only update text and pack if it's not already visible
+        if not self.temp_message_label.winfo_ismapped():
+            self.temp_message_label.config(text=message)
+            self.temp_message_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
-    def hide_temporary_message(self):
-        # Use pack_forget to remove the label from the top frame, hiding it
+def hide_temporary_message(self):
+    if self.temp_message_label.winfo_ismapped():
         self.temp_message_label.pack_forget()

@@ -1,7 +1,8 @@
-pywin32
+pywin32 # for windows
 Pillow
 replicate
 python-dotenv
 certifi
 pyserial
 argparse
+pythoncom
