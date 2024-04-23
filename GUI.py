@@ -16,6 +16,7 @@ class Image_Generator_GUI:
                  ):
         
         large_font = ('Verdana', 20)
+        self.gui_mode = gui_mode
         
         self.root = root
         self.input_callbacks = input_callbacks
@@ -43,19 +44,19 @@ class Image_Generator_GUI:
         self.image_label = tk.Label(root)
         self.image_label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        # Prompt entry across the full width below the image
-        self.image_label = tk.Label(root)
-        self.image_label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.prompt_entry = tk.Entry(root, font=large_font)
+        self.prompt_entry.pack(side=tk.TOP, fill=tk.X, padx=5, pady=10)  # Padding for aesthetics
+        self.prompt_entry.focus_set()
         root.bind('<Configure>', self.on_window_resize)  # Bind resize event
         self.current_image_path = None
         self.resize_event_id = None
         # Capture initial dimensions once the window is stable
         root.after(100, self.capture_initial_dimensions)
 
-        if not gui_mode == "gui_mode":
+        if not self.gui_mode == "gui_mode":
             self.root.bind("<FocusOut>", self.force_focus)
 
-        if gui_mode == "gui_mode":
+        if self.gui_mode == "gui_mode":
             if not scan_callback or not send_to_replicate_callback or not self.input_callbacks:
                 raise ValueError("scan_callback and send_to_replicate_callback must be provided when gui_mode is set")
 
@@ -153,7 +154,8 @@ class Image_Generator_GUI:
 
         # Fetch current window dimensions instead of widget dimensions
         window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height() - 100  # Adjust height for any other UI elements
+
+        window_height = self.root.winfo_height() - 150  # Adjust height for any other UI elements
 
         # Calculate the new size maintaining aspect ratio
         img_width, img_height = img.size

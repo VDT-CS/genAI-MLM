@@ -6,3 +6,5 @@ certifi
 pyserial
 argparse
 pythoncom
+opencv-python
+numpy

@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 from PIL import Image, ImageWin
+from remove_background import remove_background_grabcut
 
 # Conditional imports depending on the OS
 if platform.system() == 'Windows':
@@ -14,7 +15,11 @@ class Scanner_Printer:
         self.physical_width = 110
         self.physical_height = 111
 
-    def print_image(self, image_path, printer_name):
+    def print_image(self, image_path, printer_name, remove_background=False):
+        if remove_background:
+            output_path = remove_background_grabcut(image_path, "temp_image.jpg")
+            image_path = output_path
+
         if platform.system() == 'Windows':
             printer_name = printer_name
             file_name = image_path

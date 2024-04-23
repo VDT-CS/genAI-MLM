@@ -9,7 +9,6 @@ from arduino_input import Serial_Listener
 
 threadsToClose = []
 
-# Callbacks for arduino input
 callbacks = {
         "SCAN": lambda: on_input.perform_scan("scanned_image.jpg", scanner_printer, gui),
         "GENERATE": lambda: on_input.send_to_replicate("scanned_image.jpg", replicate, gui, scanner_printer),
@@ -30,7 +29,7 @@ callbacks = {
             "WHIMSICAL": lambda: on_input.add_string_to_append_dict("TONE", "Whimsical, playful, and light-hearted")
         },
         "BACKGROUND":{
-            "NONE": lambda: on_input.add_string_to_append_dict("BACKGROUND", "No background", "Exclude colors, shadows, and textures in the background"),
+            "NONE": lambda: on_input.set_remove_background(lambda: on_input.add_string_to_append_dict("BACKGROUND", "Isolated on a white background!", "Exclude colors, shadows, and textures in the background")),
             "CITY": lambda: on_input.add_string_to_append_dict("BACKGROUND","Background overlooking a vibrant, lit-up cityscape"),
             "FOREST": lambda: on_input.add_string_to_append_dict("BACKGROUND","Background within a lively, verdant forest")
         }

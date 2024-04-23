@@ -4,6 +4,7 @@
 __pycache__/
 .vscode/
 *.jpg
+*.png
 .venv/
 venv/
 pytorch_model.bin

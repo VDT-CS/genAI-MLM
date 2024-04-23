@@ -16,6 +16,8 @@ class Input_Handler:
         self.scanning = False
 
         self.printer_name = os.getenv('PRINTER_NAME')
+
+        self.remove_backround = False
     
     def perform_scan(self, output_path, scanner_printer, gui):
         if self.shutdown_event.is_set():
@@ -71,12 +73,22 @@ class Input_Handler:
         try:
             print("Sending image to replicate...")
             image_path = replicate.download_image(replicate.generate(file_path, prompt, negative_prompt), "generated_image.jpg")
-            scanner_printer.print_image(image_path, self.printer_name)
+            scanner_printer.print_image(image_path, self.printer_name, self.remove_backround)
+            self.remove_backround = False
             gui.root.after(0, gui.stop_loading_animation)
         finally:
             if sys.platform == 'win32':
                 pythoncom.CoUninitialize()
             self.thread_end(thread_id)
+
+    def set_remove_background(self, add_string_to_append_dict):
+        print("Setting remove background callback...")
+        self.remove_backround = True
+        # Check if the callback is callable to prevent errors
+        if callable(add_string_to_append_dict):
+            add_string_to_append_dict()
+        else:
+            print("Provided argument is not a callable function.")
             
     def add_string_to_append_dict(self, input, strToAppend, negative_prompt = ""):
         self.prompts_to_append[input] = strToAppend
