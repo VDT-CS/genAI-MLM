@@ -17,8 +17,10 @@ class Scanner_Printer:
 
     def print_image(self, image_path, printer_name, remove_background=False):
         if remove_background:
-            output_path = remove_background_grabcut(image_path, "temp_image.jpg")
-            image_path = output_path
+            # Uncomment the following line to remove the background
+            #output_path = remove_background_grabcut(image_path, "temp_image.jpg")
+            #image_path = output_path
+            image_path = image_path
 
         if platform.system() == 'Windows':
             printer_name = printer_name
